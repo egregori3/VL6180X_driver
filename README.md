@@ -24,3 +24,8 @@ i2c_smbus_write_byte_data(command=index(15:8), data=index(7:0))$
 
 i2c_smbus_read_byte()$
 
+## Build
+
+g++ -std=c++11 UserSpaceI2C_driver.cc main.cc -I../VL6180X_driver -I./ -li2c
+
+

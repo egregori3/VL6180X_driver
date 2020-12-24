@@ -1,7 +1,10 @@
 #ifndef VL6180_REGISTERS
 #define VL6180_REGISTERS
 // https://www.st.com/resource/en/datasheet/vl6180x.pdf
+// https://www.st.com/resource/en/datasheet/vl6180.pdf
 // https://www.st.com/resource/en/application_note/dm00122600-vl6180x-basic-ranging-application-note-stmicroelectronics.pdf
+// g++ -std=c++11 UserSpaceI2C_driver.cc main.cc -I../VL6180X_driver -I./ -li2c
+// sudo ./a.out /dev/i2c-1
 
 // The VL6180 is a short range distance measuring sensor.
 // The sensor connects to the host using I2C.
@@ -9,7 +12,7 @@
 
 #include "UserSpaceI2C_driver.h"
 
-#if 1
+#if 0
 #define DEBUGP(x) printf(x);
 #else
 #define DEBUGP(x) 
@@ -77,6 +80,7 @@ class VL6180driver
  
             WriteByte(0x016, 0x00);  //change fresh out of set status to 0$
 
+            WriteByte(0x014, 0x04);  // EMG - This is not in the datasheet, but it is needed 
         }
 
         uint8_t GetVersion()
@@ -96,13 +100,14 @@ class VL6180driver
             int     range = -1;
 
             // start single range measurement
-            usleep(50000);
             VL6180_Start_Range();
-            usleep(50000);
 
+#if 1
             // poll the VL6180 till new sample ready
-            //VL6180_Poll_Range();
-
+            VL6180_Poll_Range();
+#else
+            usleep(50000); // For some reason polling takes 100's of ms
+#endif
             // read range result
             range = VL6180_Read_Range();
 
@@ -147,7 +152,6 @@ class VL6180driver
             while (range_status != 0x04) 
             {
                 status = ReadByte(0x04f);
-                printf("Status: %02x", status);
                 range_status = status & 0x07;
             }
             return 0;

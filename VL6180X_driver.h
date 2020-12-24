@@ -149,10 +149,11 @@ class VL6180driver
             range_status = status & 0x07;
 
             // wait for new measurement ready status
-            while (range_status != 0x04) 
+            for(int i=0; (range_status != 0x04) && i<50; ++i)
             {
                 status = ReadByte(0x04f);
                 range_status = status & 0x07;
+                usleep(1000);
             }
             return 0;
         }
